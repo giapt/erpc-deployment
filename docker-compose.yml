@@ -1,0 +1,82 @@
+services:
+  erpc:
+    image: ghcr.io/erpc/erpc:0.0.35
+    container_name: erpc_service
+    ports:
+      - "4020:4000"
+      - "4001:4001"
+    # env_file: 
+    #   - ./.env.local
+    volumes:
+      # Bind erpc.yaml to the container's /root/erpc.yaml
+      - ./erpc.yaml:/root/erpc.yaml
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: always
+
+  monitoring:
+    build: ./monitoring
+    ports:
+      - "3020:3000"  # Grafana
+      - "9090:9090"  # Prometheus
+    environment:
+      - SERVICE_ENDPOINT=host.docker.internal
+      - SERVICE_PORT=4001
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ./monitoring/prometheus:/etc/prometheus
+      - ./monitoring/grafana/grafana.ini:/etc/grafana/grafana.ini
+      - ./monitoring/grafana/dashboards:/etc/grafana/dashboards
+      - prometheus_data:/prometheus
+      - grafana_data:/var/lib/grafana
+
+  # redis:
+  #   container_name: erpc-redis
+  #   image: redis:6.2.5
+  #   restart: always
+  #   command: /bin/sh -c "redis-server --appendonly yes --requirepass $$REDIS_HOST_PASSWORD"
+  #   env_file:
+  #     - redis.env
+  #   ports:
+  #     - "6381:6379"
+
+  # postgresql:
+  #   container_name: erpc-postgresql
+  #   image: postgres:16.6
+  #   restart: always
+  #   extra_hosts:
+  #     - "host.docker.internal:host-gateway"
+  #   environment:
+  #     POSTGRES_USER: erpc
+  #     POSTGRES_PASSWORD: erpc
+  #     POSTGRES_DB: erpc
+    # ports:
+    #   - "5432:5432"
+  #   networks:
+  #     erpc:
+
+  # scylla:
+  #   container_name: erpc-scylla
+  #   image: scylladb/scylla:5.2.18
+  #   restart: always
+  #   command: --alternator-port=8067 --alternator-write-isolation=unsafe_rmw --seeds=erpc-scylla --smp 1 --memory 1G --overprovisioned 1 --api-address 0.0.0.0
+  #   volumes:
+  #     - "./scylla/scylla.yaml:/etc/scylla/scylla.yaml"
+  #     - "./scylla/cassandra-rackdc.properties.dc1:/etc/scylla/cassandra-rackdc.properties"
+  #     - "./scylla/mutant-data.txt:/mutant-data.txt"
+  #   ports:
+  #     - "8067:8067"
+  #     - "9042:9042"
+  #     - "9160:9160"
+  #     - "10000:10000"
+  #   networks:
+  #     erpc:
+
+networks:
+  erpc:
+    driver: bridge
+
+volumes:
+  prometheus_data:
+  grafana_data:

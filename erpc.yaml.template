@@ -1,0 +1,54 @@
+logLevel: debug
+
+database:
+  evmJsonRpcCache:
+    driver: memory
+    memory:
+      maxItems: 1000
+
+server:
+  httpHostV4: "0.0.0.0"
+  listenV6: true
+  httpHostV6: "[::]"
+  httpPort: 4000
+  
+metrics:
+  enabled: true
+  hostV4: "0.0.0.0"
+  hostV6: "[::]"
+  port: 4001
+
+projects:
+  - id: main
+    upstreams:
+      - endpoint: alchemy://{{ALCHEMY_API_KEY}}
+      - endpoint: blastapi://{{BLASTAPI_API_KEY}}
+      - endpoint: drpc://{{DRPC_API_KEY}}
+      - endpoint: https://mainnet.infura.io/v3/{{INFURA_API_KEY}}
+      - endpoint: thirdweb://{{THIRDWEB_API_KEY}}
+  - id: test
+    upstreams:
+      - id: dioneprotocol
+        type: evm
+        endpoint: https://testnode.dioneprotocol.com/ext/bc/D/rpc
+        jsonRpc:
+          supportsBatch: true
+          batchMaxSize: 10
+          batchMaxWait: 100ms
+        evm:
+          chainId: 131313
+        failsafe:
+          timeout:
+            duration: 15s
+      - id: amoy
+        type: evm
+        endpoint: https://rpc-amoy.polygon.technology/
+        jsonRpc:
+          supportsBatch: true
+          batchMaxSize: 10
+          batchMaxWait: 100ms
+        evm:
+          chainId: 80002
+        failsafe:
+          timeout:
+            duration: 15s
