@@ -18,7 +18,7 @@
 1. Clone this repository:
 
 ```bash
-git clone https://github.com/erpc/erpc.git
+git clone https://github.com/trustswap/erpc-deployment
 ```
 
 2. Create a `.env` configuration file based on the [`.env.template`](./.env.template) file, and fill `.env` with api key from Alchemy, DRPC, Blast, Infura, Thirdweb free accounts.
